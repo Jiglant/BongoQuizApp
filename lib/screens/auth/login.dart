@@ -18,7 +18,7 @@ class _LoginState extends State<Login> {
     final double width = MediaQuery.of(context).size.width;
     return TweenAnimationBuilder(
       tween: Tween<double>(begin: 1, end: 0),
-      duration: Duration(seconds: 1),
+      duration: Duration(milliseconds: 500),
       curve: Curves.fastOutSlowIn,
       builder: (_, value, child) {
         return Transform(

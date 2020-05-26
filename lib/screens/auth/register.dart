@@ -1,6 +1,6 @@
 import 'package:bongo_quiz/providers/auth_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
-import 'package:bongo_quiz/screens/home_screen.dart';
+import 'package:bongo_quiz/screens/home/home_screen.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -73,7 +73,7 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
     return TweenAnimationBuilder(
-      duration: Duration(seconds: 1),
+      duration: Duration(milliseconds: 500),
       tween: Tween<double>(begin: -1, end: 0),
       curve: Curves.fastOutSlowIn,
       builder: (ctx, double value, child) {

@@ -49,7 +49,7 @@ class PageItem2 extends StatelessWidget {
                 child: FlatButton(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).accentColor,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20)),
                   child: Text(

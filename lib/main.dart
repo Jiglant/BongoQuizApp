@@ -1,7 +1,7 @@
 import 'package:bongo_quiz/providers/auth_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
 import 'package:bongo_quiz/screens/auth/auth_screen.dart';
-import 'package:bongo_quiz/screens/home_screen.dart';
+import 'package:bongo_quiz/screens/home/home_screen.dart';
 import 'package:bongo_quiz/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +14,8 @@ void main() async {
   final token = pref.getString('_token') ?? null;
   final lang = pref.getString('lang') ?? 'en';
   var hasVisited = token == null ? false : true;
-  runApp(MyApp(hasVisited: hasVisited, language: lang));
+
+  runApp(MyApp(hasVisited: true, language: lang));
 }
 
 class MyApp extends StatelessWidget {
@@ -38,16 +39,23 @@ class MyApp extends StatelessWidget {
             id: "theme1",
             description: "First Theme",
             data: ThemeData(
-                primaryColor: Colors.orange,
-                scaffoldBackgroundColor: Colors.blue,
-                textTheme: TextTheme(
-                  headline4: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )),
+              accentColor: Color.fromRGBO(255, 99, 71, 1),
+              primaryColor: Colors.blue,
+              scaffoldBackgroundColor: Color.fromRGBO(245, 255, 250, 1),
+              bottomAppBarColor: Colors.blue,
+              textTheme: TextTheme(
+                headline4: TextStyle(
+                  color: Colors.orange,
+                  fontWeight: FontWeight.w600,
+                ),
+                subtitle1: TextStyle(
+                  color: Colors.deepOrangeAccent,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
           ),
-          AppTheme.light().copyWith(
+          AppTheme.dark().copyWith(
             id: "theme2",
             description: "Second Theme",
             data: ThemeData(
