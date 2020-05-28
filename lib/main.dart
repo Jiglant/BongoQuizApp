@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:bongo_quiz/providers/auth_provider.dart';
+import 'package:bongo_quiz/providers/home_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
 import 'package:bongo_quiz/screens/auth/auth_screen.dart';
 import 'package:bongo_quiz/screens/home/home_screen.dart';
@@ -18,6 +21,18 @@ void main() async {
   runApp(MyApp(hasVisited: true, language: lang));
 }
 
+dynamic _checkConnection() async {
+  try {
+    final result = await InternetAddress.lookup('google.com');
+    print(result);
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      print('connected');
+    }
+  } on SocketException catch (_) {
+    throw ('error');
+  }
+}
+
 class MyApp extends StatelessWidget {
   final bool hasVisited;
   final String language;
@@ -30,6 +45,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: LanguageProvider(language)),
         ChangeNotifierProvider.value(value: AuthProvider()),
+        ChangeNotifierProvider.value(value: HomeProvider()),
       ],
       child: ThemeProvider(
         saveThemesOnChange: true,

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bongo_quiz/providers/language_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
