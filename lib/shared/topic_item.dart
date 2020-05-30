@@ -1,4 +1,5 @@
 import 'package:bongo_quiz/model/topic.dart';
+import 'package:bongo_quiz/screens/topic_detail_screen/topic_details_screen.dart';
 import 'package:flutter/material.dart';
 
 class TopicItem extends StatelessWidget {
@@ -28,7 +29,6 @@ class TopicItem extends StatelessWidget {
                   fadeInDuration: Duration(milliseconds: 100),
                   height: 55,
                   width: 55,
-
                 ),
               ),
             ),
@@ -44,6 +44,9 @@ class TopicItem extends StatelessWidget {
           ],
         ),
       ),
+      onTap: () {
+        Navigator.of(context).pushNamed(TopicDetailsScreen.route,arguments: topic.id);
+      },
     );
   }
 }

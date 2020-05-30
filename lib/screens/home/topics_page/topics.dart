@@ -1,35 +1,10 @@
-import 'package:bongo_quiz/providers/home_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
-import 'package:bongo_quiz/shared/topic_item.dart';
+import 'package:bongo_quiz/providers/topics_provider.dart';
+import 'package:bongo_quiz/screens/home/topics_page/category_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class TopicsPage extends StatefulWidget {
-  @override
-  _TopicsPageState createState() => _TopicsPageState();
-}
-
-class _TopicsPageState extends State<TopicsPage> {
-  ScrollController _controller;
-
-  @override
-  void initState() {
-    _controller = ScrollController()
-      ..addListener(() {
-        print(_controller.position.extentAfter);
-        if (_controller.position.extentAfter < 270) {
-          Provider.of<HomeProvider>(context, listen: false).loadMoreTopics();
-        }
-      });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class TopicsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -48,17 +23,50 @@ class _TopicsPageState extends State<TopicsPage> {
           ),
         ),
         Expanded(
-          child: Consumer<HomeProvider>(
-            builder: (_, home, _child) => GridView.builder(
-                scrollDirection: Axis.horizontal,
-                controller: _controller,
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 85,
-                  childAspectRatio: 1,
-                  mainAxisSpacing: 5,
-                ),
-                itemCount: home.topics.length,
-                itemBuilder: (_, index) => TopicItem(home.topics[index])),
+          child: FutureBuilder(
+            future: Provider.of<TopicsProvider>(context, listen: false)
+                .loadCategories(),
+            builder: (_, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return Center(
+                  child: snapshot.error.toString() == 'connection_error'
+                      ? Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.network_check,
+                              size: 50,
+                            ),
+                            SizedBox(width: 10),
+                            Text("Connection Error",
+                                style: Theme.of(context).textTheme.subtitle1),
+                          ],
+                        )
+                      : Container(
+                          child: Text('Oops! SOmething went wrong'),
+                        ),
+                );
+              } else {
+                return Consumer<TopicsProvider>(
+                  builder: (_, categories, __) {
+                    return ListView.builder(
+                      itemCount: categories.categories.length,
+                      itemBuilder: (_, index) {
+                        if (categories.categories[index].topics.length < 1) {
+                          return Container();
+                        }
+                        return CategoryItem(categories.categories[index]);
+                      },
+                    );
+                  },
+                );
+              }
+            },
           ),
         ),
       ],

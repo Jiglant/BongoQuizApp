@@ -7,42 +7,45 @@ import 'package:provider/provider.dart';
 class NewTopics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: <Widget>[
-                Icon(
-                  Icons.check_box_outline_blank,
-                  color: Theme.of(context).accentColor,
-                ),
-                SizedBox(width: 10),
-                Consumer<LanguageProvider>(
-                  builder: (_, language, child) => Text(
-                    language.term('New Topics'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle1
-                        .copyWith(fontSize: 17),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.only(left: 10, bottom: 10),
+              child: Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.check_box_outline_blank,
+                    color: Theme.of(context).accentColor,
                   ),
-                ),
-              ],
-            ),
-          ),
-          Consumer<HomeProvider>(
-            builder: (_, home, __) => SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
-                children:
-                    home.newTopics.map((topic) => TopicItem(topic)).toList(),
+                  SizedBox(width: 10),
+                  Consumer<LanguageProvider>(
+                    builder: (_, language, child) => Text(
+                      language.term('New Topics'),
+                      style: Theme.of(context)
+                          .textTheme
+                          .subtitle1
+                          .copyWith(fontSize: 17),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            Consumer<HomeProvider>(
+              builder: (_, home, __) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  children:
+                      home.newTopics.map((topic) => TopicItem(topic)).toList(),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -3,8 +3,12 @@ import 'dart:io';
 import 'package:bongo_quiz/providers/auth_provider.dart';
 import 'package:bongo_quiz/providers/home_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
+import 'package:bongo_quiz/providers/topic_details_provider.dart';
+import 'package:bongo_quiz/providers/topics_provider.dart';
 import 'package:bongo_quiz/screens/auth/auth_screen.dart';
 import 'package:bongo_quiz/screens/home/home_screen.dart';
+import 'package:bongo_quiz/screens/home/topics_page/category_topics.dart';
+import 'package:bongo_quiz/screens/topic_detail_screen/topic_details_screen.dart';
 import 'package:bongo_quiz/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +50,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: LanguageProvider(language)),
         ChangeNotifierProvider.value(value: AuthProvider()),
         ChangeNotifierProvider.value(value: HomeProvider()),
+        ChangeNotifierProvider.value(value: TopicsProvider()),
+        ChangeNotifierProvider.value(value: TopicDetailsProvider()),
       ],
       child: ThemeProvider(
         saveThemesOnChange: true,
@@ -90,6 +96,8 @@ class MyApp extends StatelessWidget {
             WelcomeScreen.route: (_) => ThemeConsumer(child: WelcomeScreen()),
             AuthScreen.route: (_) => ThemeConsumer(child: AuthScreen()),
             HomePage.route: (_) => ThemeConsumer(child: HomePage()),
+            CategoryTopics.route: (_) => ThemeConsumer(child: CategoryTopics()),
+            TopicDetailsScreen.route: (_) => ThemeConsumer(child: TopicDetailsScreen())
           },
         ),
       ),

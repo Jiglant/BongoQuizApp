@@ -14,14 +14,9 @@ class HomeProvider with ChangeNotifier {
   //new topics
   List<Topic> _newTopics = [];
 
-  //topics
-  List<Topic> _topics = [];
-  String nextTopicPageUrl;
-  List<String> loadedTopicsPage = [];
-
   HomeProvider() {
     this.loadFavorites();
-    this.loadTopics();
+    this.loadNewTopics();
   }
 
   //FAVORITE
@@ -125,73 +120,6 @@ class HomeProvider with ChangeNotifier {
     }
   }
 
-
-//TOPICS
-List<Topic> get topics {
-    return [..._topics];
-  }
-  void loadTopics() async {
-    try {
-      final result = await executeUrl(TOPICS_ROUTE);
-      // print(result);
-      if (result.containsKey('message') &&
-          result['message'] == 'Unauthenticated.') {
-        throw ('Unauthenticated');
-      } else if (result.containsKey('data')) {
-        nextFavoritePageUrl = result['links']['next'];
-        List<Topic> items = [];
-        final data = result['data'] as List<dynamic>;
-        data.forEach((topic) {
-          items.add(Topic(
-            id: topic['id'],
-            name: topic['name'],
-            description: topic['description'],
-            imageUrl: topic['imageUrl'],
-          ));
-        });
-        _topics = items;
-        notifyListeners();
-      } else {
-        throw ('error');
-      }
-    } catch (error) {
-      throw (error);
-    }
-  }
-
-  void loadMoreTopics() async {
-    try {
-      if (nextTopicPageUrl == null ||
-          loadedTopicsPage.contains(nextTopicPageUrl)) {
-        return;
-      }
-      loadedTopicsPage.add(nextTopicPageUrl);
-      final result = await executeUrl(nextFavoritePageUrl);
-      // print(result);
-      if (result.containsKey('message') &&
-          result['message'] == 'Unauthenticated.') {
-        throw ('Unauthenticated');
-      } else if (result.containsKey('data')) {
-        nextFavoritePageUrl = result['links']['next'];
-        List<Topic> items = [];
-        final data = result['data'] as List<dynamic>;
-        data.forEach((topic) {
-          items.add(Topic(
-            id: topic['id'],
-            name: topic['name'],
-            description: topic['description'],
-            imageUrl: topic['imageUrl'],
-          ));
-        });
-        _topics.addAll(items);
-        notifyListeners();
-      } else {
-        throw ('error');
-      }
-    } catch (error) {
-      throw (error);
-    }
-  }
 
   Future<Map<String, dynamic>> executeUrl(String url) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
