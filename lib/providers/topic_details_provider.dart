@@ -17,6 +17,14 @@ class TopicDetailsProvider with ChangeNotifier {
     return _details;
   }
 
+  int get currentLevel {
+    return details.playerLevel ~/ 10;
+  }
+
+  double get currentLevelPercent {
+    return (details.playerLevel % 10) / 10;
+  }
+
   //Topic Details
   Future<void> loadTopicDetails(int topicId) async {
     try {
@@ -28,6 +36,20 @@ class TopicDetailsProvider with ChangeNotifier {
       } else if (result.containsKey('data')) {
         final data = result['data'] as Map<String, dynamic>;
         nextFriendsPageUrl = data['friends']['next_page_url'];
+        List<Friend> fake = [
+          Friend(id: 1,name: "Jiglant",avatar: ""),
+          Friend(id: 1,name: "Kalla",avatar: ""),
+          Friend(id: 1,name: "Noel",avatar: ""),
+          Friend(id: 1,name: "Hans",avatar: "http://192.168.43.136:8000/image/1"),
+          Friend(id: 1,name: "Kelcin",avatar: ""),
+          Friend(id: 1,name: "Jiglant",avatar: ""),
+          Friend(id: 1,name: "Kalla",avatar: ""),
+          Friend(id: 1,name: "Noel",avatar: ""),
+          Friend(id: 1,name: "Hans",avatar: "http://192.168.43.136:8000/image/1"),
+          Friend(id: 1,name: "Kelcin",avatar: ""),
+          Friend(id: 1,name: "Jiglant",avatar: ""),
+          Friend(id: 1,name: "Kalla",avatar: ""),
+        ];
         _details = TopicDetails(
           id: data['id'],
           name: data['name'],
@@ -36,13 +58,14 @@ class TopicDetailsProvider with ChangeNotifier {
           playerLevel: data['player_level'],
           isFollowing: data['isFollowing'],
           rankings: data['rankings'],
-          friends: (data['friends']['data'] as List<dynamic>)
-              .map((friend) => Friend(
-                    id: friend['id'],
-                    name: friend['name'],
-                    avatar: friend['avatar'],
-                  ))
-              .toList(),
+          friends: fake
+          // (data['friends']['data'] as List<dynamic>)
+          //     .map((friend) => Friend(
+          //           id: friend['id'],
+          //           name: friend['name'],
+          //           avatar: friend['avatar'],
+          //         ))
+          //     .toList(),
         );
 
         notifyListeners();
@@ -58,10 +81,10 @@ class TopicDetailsProvider with ChangeNotifier {
 
   Future<Map<String, dynamic>> executeUrl(String url) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // final token = prefs.getString('_token') ?? '';
+    final token = prefs.getString('_token') ?? '';
     final response = await http.get(url, headers: {
       HttpHeaders.acceptHeader: "application/json",
-      HttpHeaders.authorizationHeader: "Bearer $TOKEN"
+      HttpHeaders.authorizationHeader: "Bearer $token"
     });
     return json.decode(response.body) as Map<String, dynamic>;
   }

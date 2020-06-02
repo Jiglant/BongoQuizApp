@@ -1,4 +1,7 @@
 import 'package:bongo_quiz/providers/topic_details_provider.dart';
+import 'package:bongo_quiz/screens/topic_detail_screen/action_buttons.dart';
+import 'package:bongo_quiz/screens/topic_detail_screen/pic_and_level.dart';
+import 'package:bongo_quiz/screens/topic_detail_screen/progress_row.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -42,16 +45,22 @@ class TopicDetailsScreen extends StatelessWidget {
                   builder: (_, provider, __) {
                     return Column(
                       children: <Widget>[
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          child: Text(provider.details.name,
+                              style: Theme.of(context).textTheme.headline5),
+                        ),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Text(provider.details.name),
-                                //TODO design topic details page
-                              ],
+                            PicAndLevel(provider),
+                            Expanded(
+                              child: ActionButtons(provider),
                             ),
                           ],
                         ),
+                        SizedBox(height: 20),
+                        ProgressRow(provider),
                       ],
                     );
                   },

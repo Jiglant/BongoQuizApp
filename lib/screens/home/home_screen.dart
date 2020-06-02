@@ -1,8 +1,6 @@
-import 'package:bongo_quiz/screens/home/home_page/favorite.dart';
-import 'package:bongo_quiz/screens/home/home_page/new_topics.dart';
+import 'package:bongo_quiz/screens/home/home_page/landing_page.dart';
 import 'package:bongo_quiz/screens/home/topics_page/topics.dart';
 import 'package:flutter/material.dart';
-
 class HomePage extends StatefulWidget {
   static const route = "home-screen";
 
@@ -47,15 +45,7 @@ class _HomePageState extends State<HomePage> {
         controller: _controller,
         physics: NeverScrollableScrollPhysics(),
         children: <Widget>[
-          //Home Screen
-          SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                FavoriteTopics(),
-                NewTopics(),
-              ],
-            ),
-          ),
+          LandingPage(),
           TopicsPage(),
         ],
       ),

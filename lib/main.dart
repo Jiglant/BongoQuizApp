@@ -5,12 +5,14 @@ import 'package:bongo_quiz/providers/home_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
 import 'package:bongo_quiz/providers/topic_details_provider.dart';
 import 'package:bongo_quiz/providers/topics_provider.dart';
+import 'package:bongo_quiz/providers/user_channel_provider.dart';
 import 'package:bongo_quiz/screens/auth/auth_screen.dart';
 import 'package:bongo_quiz/screens/home/home_screen.dart';
 import 'package:bongo_quiz/screens/home/topics_page/category_topics.dart';
 import 'package:bongo_quiz/screens/topic_detail_screen/topic_details_screen.dart';
 import 'package:bongo_quiz/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -22,7 +24,7 @@ void main() async {
   final lang = pref.getString('lang') ?? 'en';
   var hasVisited = token == null ? false : true;
 
-  runApp(MyApp(hasVisited: true, language: lang));
+  runApp(MyApp(hasVisited: hasVisited, language: lang));
 }
 
 dynamic _checkConnection() async {
@@ -52,6 +54,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: HomeProvider()),
         ChangeNotifierProvider.value(value: TopicsProvider()),
         ChangeNotifierProvider.value(value: TopicDetailsProvider()),
+        ChangeNotifierProvider.value(value: UserChannelProvider(hasVisited)),
       ],
       child: ThemeProvider(
         saveThemesOnChange: true,
@@ -68,6 +71,10 @@ class MyApp extends StatelessWidget {
               textTheme: TextTheme(
                 headline4: TextStyle(
                   color: Colors.orange,
+                  fontWeight: FontWeight.w600,
+                ),
+                headline5: TextStyle(
+                  color: Colors.blue,
                   fontWeight: FontWeight.w600,
                 ),
                 subtitle1: TextStyle(
@@ -91,13 +98,14 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
-          initialRoute: hasVisited ? HomePage.route : WelcomeScreen.route,
+          initialRoute: hasVisited ? HomePage.route : AuthScreen.route,
           routes: {
             WelcomeScreen.route: (_) => ThemeConsumer(child: WelcomeScreen()),
             AuthScreen.route: (_) => ThemeConsumer(child: AuthScreen()),
             HomePage.route: (_) => ThemeConsumer(child: HomePage()),
             CategoryTopics.route: (_) => ThemeConsumer(child: CategoryTopics()),
-            TopicDetailsScreen.route: (_) => ThemeConsumer(child: TopicDetailsScreen())
+            TopicDetailsScreen.route: (_) =>
+                ThemeConsumer(child: TopicDetailsScreen())
           },
         ),
       ),

@@ -23,17 +23,53 @@ class AuthProvider with ChangeNotifier {
         headers: {HttpHeaders.acceptHeader: "application/json"},
       );
       final data = (json.decode(response.body)) as Map<String, dynamic>;
-      print(data);
+      // print(data);
       if (data.containsKey('success')) {
         final token = data['token'];
-        final username = data['username'];
-        final email = data['email'];
+        final userId = data['user']['id'].toString();
+        final username = data['user']['username'];
+        final email = data['user']['email'];
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('_token', token);
+        await prefs.setString('userId', userId);
         await prefs.setString('username', username);
         await prefs.setString('email', email);
       } else if (data.containsKey('error')) {
         throw data['error'] as Map<String, dynamic>;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<dynamic> loginUser({
+    @required String username,
+    @required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        LOGIN_ROUTE,
+        body: {
+          'username': username,
+          'password': password,
+        },
+        headers: {HttpHeaders.acceptHeader: "application/json"},
+      );
+      final data = (json.decode(response.body)) as Map<String, dynamic>;
+      // print(data);
+      // return;
+      if (data.containsKey('success')) {
+        final token = data['token'];
+        final userId = data['user']['id'].toString();
+        final username = data['user']['username'];
+        final email = data['user']['email'];
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('_token', token);
+        await prefs.setString('userId', userId);
+        await prefs.setString('username', username);
+        await prefs.setString('email', email);
+      } else if (data.containsKey('error') && data['error']=="Invalid Credentials") {
+        throw("invalid");
       }
     } catch (e) {
       throw e;

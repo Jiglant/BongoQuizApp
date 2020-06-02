@@ -14,17 +14,12 @@ class HomeProvider with ChangeNotifier {
   //new topics
   List<Topic> _newTopics = [];
 
-  HomeProvider() {
-    this.loadFavorites();
-    this.loadNewTopics();
-  }
-
   //FAVORITE
   List<Topic> get favoriteTopics {
     return [..._favorites];
   }
 
-  void loadFavorites() async {
+  Future<void> loadFavorites() async {
     try {
       final result = await executeUrl(FAVORITE_ROUTE);
       // print(result);
@@ -87,12 +82,12 @@ class HomeProvider with ChangeNotifier {
     }
   }
 
-   //NEW TOPICS
+  //NEW TOPICS
   List<Topic> get newTopics {
     return [..._newTopics];
   }
 
-  void loadNewTopics() async {
+  Future<void> loadNewTopics() async {
     try {
       final result = await executeUrl(NEW_TOPIC_ROUTE);
       // print(result);
@@ -120,13 +115,12 @@ class HomeProvider with ChangeNotifier {
     }
   }
 
-
   Future<Map<String, dynamic>> executeUrl(String url) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // final token = prefs.getString('_token') ?? '';
+    final token = prefs.getString('_token') ?? '';
     final response = await http.get(url, headers: {
       HttpHeaders.acceptHeader: "application/json",
-      HttpHeaders.authorizationHeader: "Bearer $TOKEN"
+      HttpHeaders.authorizationHeader: "Bearer $token"
     });
     return json.decode(response.body) as Map<String, dynamic>;
   }

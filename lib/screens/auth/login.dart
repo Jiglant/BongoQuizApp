@@ -1,4 +1,7 @@
+import 'package:bongo_quiz/providers/auth_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
+import 'package:bongo_quiz/providers/user_channel_provider.dart';
+import 'package:bongo_quiz/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +14,65 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  var username, password;
+  dynamic errors = {};
+  FocusNode usernameNode, passwordNode;
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    usernameNode = new FocusNode();
+    passwordNode = new FocusNode();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    usernameNode.dispose();
+    passwordNode.dispose();
+    super.dispose();
+  }
+
+  void _validateForm() {
+    if (formKey.currentState.validate()) {
+      Provider.of<AuthProvider>(context, listen: false)
+          .loginUser(username: username, password: password)
+          .then((_) {
+        Provider.of<UserChannelProvider>(context, listen: false).init();
+        Navigator.of(context).pushReplacementNamed(HomePage.route);
+      }).catchError((error) {
+        print(error);
+        setState(() {
+          if (error == "invalid") {
+            errors = {
+              'invalid': Provider.of<LanguageProvider>(context, listen: false)
+                  .term("Invalid credentials")
+            };
+          } else {
+            errors = {
+              'invalid': Provider.of<LanguageProvider>(context, listen: false)
+                  .term('Something went wrong')
+            };
+          }
+        });
+      });
+    }
+  }
+
+  Widget _hasError(String value) {
+    if ((errors as Map<dynamic, dynamic>).containsKey(value)) {
+      return Padding(
+        padding: const EdgeInsets.all(9.0),
+        child: Text(
+          errors[value].toString(),
+          style: TextStyle(color: Colors.red, fontSize: 14),
+        ),
+      );
+    }
+
+    return Container();
+  }
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -34,6 +96,7 @@ class _LoginState extends State<Login> {
                   ),
                   child: Center(
                     child: Form(
+                      key: formKey,
                       child: SingleChildScrollView(
                         child: Column(
                           children: <Widget>[
@@ -42,11 +105,12 @@ class _LoginState extends State<Login> {
                               style: Theme.of(context).textTheme.headline4,
                             ),
                             SizedBox(height: 40),
+                            _hasError('invalid'),
                             TextFormField(
                               decoration: InputDecoration(
                                 contentPadding:
                                     EdgeInsets.symmetric(vertical: 8),
-                                labelText: language.term("Username"),
+                                labelText: language.term("Username or Email"),
                                 labelStyle: TextStyle(
                                   color: Colors.orange,
                                 ),
@@ -70,7 +134,21 @@ class _LoginState extends State<Login> {
                               textInputAction: TextInputAction.next,
                               keyboardType: TextInputType.text,
                               cursorColor: Colors.deepOrange,
+                              focusNode: usernameNode,
                               cursorWidth: 1,
+                              onChanged: (value) {
+                                username = value;
+                              },
+                              onFieldSubmitted: (_) {
+                                FocusScope.of(context)
+                                    .requestFocus(passwordNode);
+                              },
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return language.term("Username is required");
+                                }
+                                return null;
+                              },
                             ),
                             SizedBox(height: 15),
                             TextFormField(
@@ -103,6 +181,16 @@ class _LoginState extends State<Login> {
                               keyboardType: TextInputType.visiblePassword,
                               cursorColor: Colors.deepOrange,
                               cursorWidth: 1,
+                              focusNode: passwordNode,
+                              onChanged: (value) {
+                                password = value;
+                              },
+                              validator: (value) {
+                                if (value.isEmpty) {
+                                  return "Password is required";
+                                }
+                                return null;
+                              },
                             ),
                             SizedBox(height: 15),
                             RaisedButton(
@@ -117,7 +205,7 @@ class _LoginState extends State<Login> {
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 17),
                               ),
-                              onPressed: () {},
+                              onPressed: _validateForm,
                             ),
                             SizedBox(height: 15),
                             FlatButton(

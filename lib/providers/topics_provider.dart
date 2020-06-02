@@ -143,36 +143,36 @@ class TopicsProvider with ChangeNotifier {
   }
 
   //Topic Details
-  Future<void> loadTopicDetails(int topicId) async {
-    try {
-      _categoryTopics.clear();
-      final result = await executeUrl("$TOPIC_DETAILS_ROUTE$topicId");
-      // print(result);
-      if (result.containsKey('message') &&
-          result['message'] == 'Unauthenticated.') {
-        throw ('Unauthenticated');
-      } else if (result.containsKey('data')) {
-        final data = result['data'] as Map<String,dynamic>;
+  // Future<void> loadTopicDetails(int topicId) async {
+  //   try {
+  //     _categoryTopics.clear();
+  //     final result = await executeUrl("$TOPIC_DETAILS_ROUTE$topicId");
+  //     // print(result);
+  //     if (result.containsKey('message') &&
+  //         result['message'] == 'Unauthenticated.') {
+  //       throw ('Unauthenticated');
+  //     } else if (result.containsKey('data')) {
+  //       final data = result['data'] as Map<String,dynamic>;
         
-        //TODO Create topic details model
+  //       //TODO Create topic details model
 
-        notifyListeners();
-      } else {
-        throw ('error');
-      }
-    } on SocketException catch (error) {
-      throw ('connection_error');
-    } catch (error) {
-      throw (error);
-    }
-  }
+  //       notifyListeners();
+  //     } else {
+  //       throw ('error');
+  //     }
+  //   } on SocketException catch (error) {
+  //     throw ('connection_error');
+  //   } catch (error) {
+  //     throw (error);
+  //   }
+  // }
 
   Future<Map<String, dynamic>> executeUrl(String url) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // final token = prefs.getString('_token') ?? '';
+    final token = prefs.getString('_token') ?? '';
     final response = await http.get(url, headers: {
       HttpHeaders.acceptHeader: "application/json",
-      HttpHeaders.authorizationHeader: "Bearer $TOKEN"
+      HttpHeaders.authorizationHeader: "Bearer $token"
     });
     return json.decode(response.body) as Map<String, dynamic>;
   }

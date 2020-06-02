@@ -1,5 +1,6 @@
 import 'package:bongo_quiz/providers/auth_provider.dart';
 import 'package:bongo_quiz/providers/language_provider.dart';
+import 'package:bongo_quiz/providers/user_channel_provider.dart';
 import 'package:bongo_quiz/screens/home/home_screen.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
@@ -42,10 +43,10 @@ class _RegisterState extends State<Register> {
   void _validateForm() {
 
     if (key.currentState.validate()) {
-      print("Valide data");
       Provider.of<AuthProvider>(context, listen: false)
           .registerUser(email: email, username: username, password: password)
           .then((_) {
+        Provider.of<UserChannelProvider>(context, listen: false).init();
         Navigator.of(context).pushReplacementNamed(HomePage.route);
       }).catchError((error) {
         setState(() {
