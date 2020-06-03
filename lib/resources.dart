@@ -1,5 +1,5 @@
 const HOST_URL = "http://192.168.43.136:8000";
-const LARAVEL_ECHO_HOST = "http://192.168.43.136:6002";
+const LARAVEL_ECHO_HOST = "http://192.168.43.136:6003";
 
 const REGISTER_ROUTE = "$HOST_URL/v1/register";
 const LOGIN_ROUTE = "$HOST_URL/v1/login";
@@ -44,6 +44,7 @@ const LANGUAGE = const {
   "Random Opponent":"Mpinzani wa nasibu",
   "Random":"Nasibu",
   'Play with a friend':'Cheza na rafiki',
+  'Waiting for Opponent':'Subiri mpinzani'
 
 };
 

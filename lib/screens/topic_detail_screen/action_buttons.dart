@@ -1,6 +1,7 @@
 import 'package:bongo_quiz/providers/language_provider.dart';
 import 'package:bongo_quiz/providers/topic_details_provider.dart';
 import 'package:bongo_quiz/providers/user_channel_provider.dart';
+import 'package:bongo_quiz/screens/play_screen.dart/play_screen.dart';
 import 'package:bongo_quiz/shared/custom_dialog.dart';
 import 'package:bongo_quiz/shared/friend_item.dart';
 import 'package:flutter/material.dart';
@@ -11,121 +12,134 @@ class ActionButtons extends StatelessWidget {
   ActionButtons(this.provider);
 
   void _showPlayDialog(BuildContext context) {
-    Navigator.of(context).push(CustomDialog(
-      child: Stack(
-        children: <Widget>[
-          Align(
-            alignment: Alignment.topRight,
-            child: Container(
-              margin: const EdgeInsets.only(right: 20, top: 20),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 40,
+    Navigator.of(context).push(
+      CustomDialog(
+        child: Stack(
+          children: <Widget>[
+            Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                margin: const EdgeInsets.only(right: 20, top: 10),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
               ),
             ),
-          ),
-          Consumer<LanguageProvider>(
-            builder: (_, language, __) => Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "${language.term('Random Opponent')}:",
-                          style: Theme.of(context).textTheme.subtitle2.copyWith(
-                              fontSize: 20,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w300),
-                        ),
-                        _buildCustomButton(
-                          title: language.term("Random"),
-                          color: Theme.of(context).accentColor,
-                          iconData: Icons.forward,
-                          width: 150,
-                          handler: () {
-                            Provider.of<UserChannelProvider>(context,
-                                    listen: false)
-                                .searchOpponent(provider.details.id);
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      margin: const EdgeInsets.only(left: 20),
-                      child: Text(
-                        language.term('Play with a friend'),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 3, horizontal: 20),
-                      child: Form(
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            hintText: "Search friend",
-                            hintStyle: TextStyle(color: Colors.white),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: new BorderSide(
-                                color: Colors.white,
-                              ),
+            Consumer<LanguageProvider>(
+              builder: (_, language, __) => Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Flexible(
+                            fit: FlexFit.loose,
+                            child: Text(
+                              "${language.term('Random Opponent')}:",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .copyWith(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w300),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                              ),
-                            ),
-                            contentPadding: EdgeInsets.only(left: 3),
-                            suffixIcon:
-                                const Icon(Icons.search, color: Colors.white),
                           ),
-                          cursorColor: Colors.white,
+                          Flexible(
+                            fit: FlexFit.tight,
+                            child: _buildCustomButton(
+                              title: language.term("Random"),
+                              color: Theme.of(context).accentColor,
+                              iconData: Icons.forward,
+                              width: 120,
+                              handler: () {
+                                Provider.of<UserChannelProvider>(context,
+                                        listen: false)
+                                    .setCurrentTopicId(provider.details.id);
+                                Navigator.of(context)
+                                    .popAndPushNamed(PlayScreen.route);
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Container(
+                        margin: const EdgeInsets.only(left: 20),
+                        child: Text(
+                          language.term('Play with a friend'),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      height: 300,
-                      width: double.infinity,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 20),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey[100],
-                          width: 2,
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 3, horizontal: 20),
+                        child: Form(
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              hintText: "Search friend",
+                              hintStyle: TextStyle(color: Colors.white),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: new BorderSide(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.only(left: 3),
+                              suffixIcon:
+                                  const Icon(Icons.search, color: Colors.white),
+                            ),
+                            cursorColor: Colors.white,
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Wrap(
-                        direction: Axis.horizontal,
-                        alignment: WrapAlignment.center,
-                        children: provider.details.friends
-                            .map((friend) => FriendItem(friend))
-                            .toList(),
+                      Container(
+                        height: 300,
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey[100],
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Wrap(
+                          direction: Axis.horizontal,
+                          alignment: WrapAlignment.center,
+                          children: provider.details.friends
+                              .map((friend) => FriendItem(friend))
+                              .toList(),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   @override

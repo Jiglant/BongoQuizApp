@@ -9,6 +9,7 @@ import 'package:bongo_quiz/providers/user_channel_provider.dart';
 import 'package:bongo_quiz/screens/auth/auth_screen.dart';
 import 'package:bongo_quiz/screens/home/home_screen.dart';
 import 'package:bongo_quiz/screens/home/topics_page/category_topics.dart';
+import 'package:bongo_quiz/screens/play_screen.dart/play_screen.dart';
 import 'package:bongo_quiz/screens/topic_detail_screen/topic_details_screen.dart';
 import 'package:bongo_quiz/screens/welcome/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +106,8 @@ class MyApp extends StatelessWidget {
             HomePage.route: (_) => ThemeConsumer(child: HomePage()),
             CategoryTopics.route: (_) => ThemeConsumer(child: CategoryTopics()),
             TopicDetailsScreen.route: (_) =>
-                ThemeConsumer(child: TopicDetailsScreen())
+                ThemeConsumer(child: TopicDetailsScreen()),
+            PlayScreen.route: (_) => ThemeConsumer(child: PlayScreen()),
           },
         ),
       ),
