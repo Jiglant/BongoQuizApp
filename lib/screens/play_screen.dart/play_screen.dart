@@ -1,15 +1,12 @@
 import 'dart:convert';
 
-import 'package:bongo_quiz/model/answer.dart';
 import 'package:bongo_quiz/model/challenge.dart';
-import 'package:bongo_quiz/model/friend.dart';
-import 'package:bongo_quiz/model/question.dart';
-import 'package:bongo_quiz/model/topic.dart';
 import 'package:bongo_quiz/providers/user_channel_provider.dart';
 import 'package:bongo_quiz/resources.dart';
 import 'package:bongo_quiz/screens/play_screen.dart/intro_area.dart';
+import 'package:bongo_quiz/screens/play_screen.dart/question_item/question_item.dart';
 import 'package:bongo_quiz/screens/play_screen.dart/waiting_area.dart';
-import 'package:bongo_quiz/shared/question_item.dart';
+import 'package:bongo_quiz/shared/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:laravel_echo/laravel_echo.dart';
@@ -30,12 +27,21 @@ class _PlayScreenState extends State<PlayScreen> {
   bool showIntro = false;
   bool resume = false;
   bool start = false;
+  bool gameOver = false;
+  int currentQuestion = 0;
+  PageController _pageController;
 
   List<dynamic> _onlinePlayers = [];
+  Map<String, dynamic> _playerAnswers = {
+    'me': [],
+    'opponent': [
+      // {'qns_id': 2, 'ans_id': 2, 'win': false, 'image': 'screenshot'},
+    ]
+  };
 
   @override
   void initState() {
-    // print('init');
+    _pageController = PageController(initialPage: currentQuestion);
     provider = Provider.of<UserChannelProvider>(context, listen: false);
     _echo = new Echo({
       'broadcaster': 'socket.io',
@@ -62,8 +68,11 @@ class _PlayScreenState extends State<PlayScreen> {
   void listen() {
     _echo.private('user.${provider.userId}').listen('.opponent.found', (data) {
       print('from socket');
-      _challenge = provider.convertToChallenge(data);
-      listenForChallenge();
+      if (_challenge == null) {
+        _challenge = provider.convertToChallenge(data);
+      }
+
+      listenForChallenge(); // TODO uncomment to listen the challenge channel
     });
   }
 
@@ -76,19 +85,17 @@ class _PlayScreenState extends State<PlayScreen> {
         }
       });
       print("Online Players $_onlinePlayers");
-      if (_onlinePlayers.length > 1) {
-        setState(() {
-          showIntro = true;
-        });
+      if (_onlinePlayers.length > 1 && !start) {
+        _showIntro();
       }
     }).joining((user) {
       print("jouning $user");
       if (!_onlinePlayers.contains(user)) {
         _onlinePlayers.add(user);
-        if (_onlinePlayers.length > 1) {
-          setState(() {
-            showIntro = true;
-          });
+        if (_onlinePlayers.length > 1 && start) {
+          resumeGame();
+        } else if (_onlinePlayers.length > 1 && !start) {
+          _showIntro();
         }
       }
       print("Online Players $_onlinePlayers");
@@ -96,10 +103,8 @@ class _PlayScreenState extends State<PlayScreen> {
       print("Leaving $user");
       if (!_onlinePlayers.contains(user)) {
         _onlinePlayers.removeWhere((player) => player['id'] == user['id']);
-        if (_onlinePlayers.length < 2) {
-          setState(() {
-            showIntro = false;
-          });
+        if (_onlinePlayers.length < 2 && start) {
+          pauseGame();
         }
       }
       print("Online Players $_onlinePlayers count ${_onlinePlayers.length}");
@@ -108,27 +113,76 @@ class _PlayScreenState extends State<PlayScreen> {
     whisperChannel = _echo.private('challenge.${_challenge.id}.whisper');
 
     whisperChannel.listerForWhisper(
-      'whispering',
+      'answerChoosed',
       (data) {
-        print('whispering');
+        final opponentAnswer = json.decode(data);
+        // print("from opponent $opponentAnswer");
+        (_playerAnswers['opponent'] as List<dynamic>).add(opponentAnswer);
+        setState(() {});
       },
     );
   }
 
-  void _whisper() {
-    whisperChannel.whisper('whispering', json.encode({'data': 'data'}));
+  void _whisperAnswer(Map<String, dynamic> data) {
+    print('start whispering');
+    (_playerAnswers['me'] as List<dynamic>).add(data);
+    whisperChannel.whisper('answerChoosed', json.encode(data));
   }
 
   //Controller
-  void _startGame() {
+  void _showIntro() {
     setState(() {
-      start = true;
+      showIntro = true;
+    });
+  }
+
+  void _startGame() {
+    if (_onlinePlayers.length > 1) {
+      setState(() {
+        start = true;
+        resume = true;
+      });
+    } else {
+      setState(() {
+        start = true;
+      });
+      pauseGame();
+    }
+  }
+
+  void pauseGame() {
+    setState(() {
+      resume = false;
+    });
+    Future.delayed(Duration(seconds: 5), () {
+      Navigator.of(context).pop();
+    });
+  }
+
+  void resumeGame() {
+    setState(() {
       resume = true;
     });
   }
 
+  void endGame() {
+    setState(() {
+      gameOver = true;
+    });
+  }
+
+  void _nextQuestion() {
+    if (currentQuestion < _challenge.questions.length - 1) {
+      currentQuestion++;
+      _pageController.jumpToPage(currentQuestion);
+    } else {
+      endGame();
+    }
+  }
+
   @override
   void dispose() {
+    _pageController.dispose();
     _echo.leave('challenge.${_challenge.id}');
     _echo.leave('challenge.${_challenge.id}.whisper');
     _echo.disconnect();
@@ -137,6 +191,7 @@ class _PlayScreenState extends State<PlayScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // print(json.encode(_playerAnswers));
     return Scaffold(
       backgroundColor: Colors.black12,
       body: SafeArea(
@@ -147,10 +202,54 @@ class _PlayScreenState extends State<PlayScreen> {
               opponent: _challenge.opponent,
               startGame: _startGame,
             );
-          } else if (start) {
-            return QuestionItem();
+          } else if (showIntro && start && !gameOver) {
+            return Stack(
+              children: <Widget>[
+                PageView.builder(
+                  controller: _pageController,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _challenge.questions.length,
+                  itemBuilder: (ctx, index) {
+                    return QuestionItem(
+                        round: (index + 1),
+                        question: _challenge.questions[index],
+                        nextQns: _nextQuestion,
+                        me: _challenge.me,
+                        opponent: _challenge.opponent,
+                        whisperAnswer: _whisperAnswer,
+                        opponentAnswers: _playerAnswers['opponent'],
+                        myAnswers: _playerAnswers['me']);
+                  },
+                ),
+                Visibility(
+                  visible: start && !resume,
+                  child: Container(
+                    color: Colors.black87,
+                    child: SizedBox.expand(
+                      child: Center(
+                        child: Text(
+                          "Opponent has left the Challenge!",
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            );
+          } else if (start && gameOver) {
+            return Container(
+              color: Colors.black87,
+              child: SizedBox.expand(
+                child: Center(
+                  child: Text(
+                    "Game Over",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
+              ),
+            );
           } else {
-            // return QuestionItem();
             return WaitingArea();
           }
         }),
