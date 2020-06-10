@@ -12,7 +12,7 @@ class IntroItem extends StatelessWidget {
       width: itemRadius,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(itemRadius)),
-        border: Border.all(color: Colors.grey[100]),
+        border: Border.all(color: Colors.grey[100],width: 2),
       ),
       child: Align(
         alignment: Alignment.center,

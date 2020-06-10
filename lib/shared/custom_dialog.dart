@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class CustomDialog extends ModalRoute<void> {
   final Widget child;
-  CustomDialog({@required this.child});
+  final Color backgroundcolor;
+  CustomDialog({this.backgroundcolor, @required this.child});
   @override
   Duration get transitionDuration => Duration(milliseconds: 500);
 
@@ -13,7 +14,7 @@ class CustomDialog extends ModalRoute<void> {
   bool get barrierDismissible => false;
 
   @override
-  Color get barrierColor => Colors.black.withOpacity(0.8);
+  Color get barrierColor => backgroundcolor ?? Colors.black.withOpacity(0.8);
 
   @override
   String get barrierLabel => null;

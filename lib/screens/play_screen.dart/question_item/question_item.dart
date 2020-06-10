@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:bongo_quiz/model/answer.dart';
 import 'package:bongo_quiz/model/friend.dart';
 import 'package:bongo_quiz/model/question.dart';
 import 'package:bongo_quiz/screens/play_screen.dart/question_item/player_1_avatar.dart';
 import 'package:bongo_quiz/screens/play_screen.dart/question_item/player_2_avatar.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
 
 class QuestionItem extends StatefulWidget {
   final Question question;
@@ -13,6 +17,7 @@ class QuestionItem extends StatefulWidget {
   final int round;
   final Function whisperAnswer;
   final List<dynamic> opponentAnswers, myAnswers;
+  final String screenshotPath;
   QuestionItem({
     @required this.round,
     @required this.me,
@@ -22,6 +27,7 @@ class QuestionItem extends StatefulWidget {
     @required this.whisperAnswer,
     @required this.opponentAnswers,
     @required this.myAnswers,
+    @required this.screenshotPath,
   });
   @override
   _QuestionItemState createState() => _QuestionItemState();
@@ -29,7 +35,7 @@ class QuestionItem extends StatefulWidget {
 
 class _QuestionItemState extends State<QuestionItem>
     with TickerProviderStateMixin {
-  final questionDuration = 5;
+  final questionDuration = 7;
   AnimationController _controller;
   Animation<double> _animation;
   double opacity = 1;
@@ -38,6 +44,7 @@ class _QuestionItemState extends State<QuestionItem>
   bool showOpponentAns = false;
   bool timeout = false;
   var points = 0;
+  ScreenshotController _screenshotController = ScreenshotController();
 
   @override
   void initState() {
@@ -75,19 +82,21 @@ class _QuestionItemState extends State<QuestionItem>
     } else {
       points = 30;
     }
+
     if (choosed != null || timeout) return;
+    setState(() {
+      choosed = id;
+    });
+
     widget.whisperAnswer({
-      'qns_id': widget.question.id,
-      'ans_id': id,
+      'questionId': widget.question.id,
+      'answerId': id,
       'points': widget.question.answers
               .firstWhere((answer) => answer.id == id)
               .correct
           ? points
           : 0,
-      'image': 'screenshot',
-    });
-    setState(() {
-      choosed = id;
+      'image': '',
     });
   }
 
@@ -95,7 +104,13 @@ class _QuestionItemState extends State<QuestionItem>
     setState(() {
       showOpponentAns = true;
     });
-    Future.delayed(Duration(seconds: 3), widget.nextQns);
+    String imageFile = "${widget.question.id}_screenshot.png";
+    String path = "${widget.screenshotPath}/$imageFile";
+    _screenshotController.capture(path: path).then((image) {
+      // print("image captured");
+    });
+    Future.delayed(Duration(seconds: 3),
+        () => widget.nextQns(widget.question.id, choosed, imageFile));
   }
 
   @override
@@ -111,68 +126,71 @@ class _QuestionItemState extends State<QuestionItem>
     // print(widget.opponentAnswers);
     return Stack(
       children: <Widget>[
-        SizedBox.expand(
-          child: Column(
-            children: <Widget>[
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (_, child) {
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Player1Avatar(
-                          animation: _animation.value,
-                          me: widget.me,
-                          myAnswers: widget.myAnswers,
-                        ),
-                        Player2Avatar(
-                          animation: _animation.value,
-                          opponent: widget.opponent,
-                          opponentAnswers: widget.opponentAnswers,
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: 20),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  widget.question.body,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w300,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(height: 20),
-              widget.question.image != null
-                  ? Container(
-                      child: Image.network(
-                        widget.question.image,
-                        fit: BoxFit.cover,
-                        height: imageSize,
-                        width: imageSize,
+        Screenshot(
+          controller: _screenshotController,
+          child: SizedBox.expand(
+            child: Column(
+              children: <Widget>[
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (_, child) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Player1Avatar(
+                            animation: _animation.value,
+                            me: widget.me,
+                            myAnswers: widget.myAnswers,
+                          ),
+                          Player2Avatar(
+                            animation: _animation.value,
+                            opponent: widget.opponent,
+                            opponentAnswers: widget.opponentAnswers,
+                          ),
+                        ],
                       ),
-                    )
-                  : Container(),
-              SizedBox(height: 20),
-              // Spacer(),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: widget.question.answers
-                      .map((answer) => answerButton(answer: answer))
-                      .toList(),
+                    );
+                  },
                 ),
-              ),
-            ],
+                SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    widget.question.body,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w300,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: 20),
+                widget.question.image != null
+                    ? Container(
+                        child: Image.network(
+                          widget.question.image,
+                          fit: BoxFit.cover,
+                          height: imageSize,
+                          width: imageSize,
+                        ),
+                      )
+                    : Container(),
+                SizedBox(height: 20),
+                // Spacer(),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: widget.question.answers
+                        .map((answer) => answerButton(answer: answer))
+                        .toList(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         Visibility(
@@ -185,8 +203,11 @@ class _QuestionItemState extends State<QuestionItem>
               child: SizedBox.expand(
                 child: Center(
                   child: Text(
-                    "Round ${widget.round}",
-                    style: TextStyle(color: Colors.white),
+                    widget.round == 7 ? "Final Round" : "Round ${widget.round}",
+                    style: TextStyle(
+                      color: Colors.green[700],
+                      fontSize: 25,
+                    ),
                   ),
                 ),
               ),
@@ -207,8 +228,8 @@ class _QuestionItemState extends State<QuestionItem>
     Color textColor, buttonColor;
     final opponentAns = widget.opponentAnswers
             .where((element) =>
-                (element['qns_id'] == widget.question.id) &&
-                (element['ans_id'] == answer.id))
+                (element['questionId'] == widget.question.id) &&
+                (element['answerId'] == answer.id))
             .length >
         0;
     if ((choosed == answer.id || (opponentAns && showOpponentAns)) &&

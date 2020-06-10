@@ -12,8 +12,10 @@ import 'package:bongo_quiz/screens/home/topics_page/category_topics.dart';
 import 'package:bongo_quiz/screens/play_screen.dart/play_screen.dart';
 import 'package:bongo_quiz/screens/topic_detail_screen/topic_details_screen.dart';
 import 'package:bongo_quiz/screens/welcome/welcome_screen.dart';
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -25,7 +27,11 @@ void main() async {
   final lang = pref.getString('lang') ?? 'en';
   var hasVisited = token == null ? false : true;
 
-  runApp(MyApp(hasVisited: hasVisited, language: lang));
+  final tempDir = (await getTemporaryDirectory()).path;
+  String _screenShotDir = "$tempDir/screenshot";
+  Directory(_screenShotDir).create().then((directory) => print(directory.path));
+
+  runApp( MyApp(hasVisited: hasVisited, language: lang));
 }
 
 dynamic _checkConnection() async {

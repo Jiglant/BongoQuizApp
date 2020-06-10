@@ -36,6 +36,11 @@ dependencies:
   socket_io_client: ^0.9.1
   laravel_echo:
   audioplayers: ^0.15.1
+  screenshot: ^0.1.1
+  responsive_framework: ^0.0.7
+  dio: ^3.0.9
+  path_provider: ^1.6.10
+  device_preview:
 
 
   # The following adds the Cupertino Icons font to your application.
